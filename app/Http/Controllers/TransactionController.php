@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Qris;
 use App\Models\Transaction;
+use App\Exports\TransactionsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
@@ -108,6 +110,16 @@ class TransactionController extends Controller
 
         return redirect()->route('transactions.index')
             ->with('success', 'Transaksi berhasil dihapus!');
+    }
+
+    /**
+     * Export transactions to Excel.
+     */
+    public function export()
+    {
+        $fileName = 'transactions_' . date('Y-m-d_His') . '.xlsx';
+        
+        return Excel::download(new TransactionsExport, $fileName);
     }
 
     /**

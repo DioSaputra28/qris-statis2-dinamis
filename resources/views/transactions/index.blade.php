@@ -4,25 +4,6 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Alert Messages -->
-    @if(session('success'))
-        <div class="alert alert-success">
-            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-error">
-            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{{ session('error') }}</span>
-        </div>
-    @endif
-
     <!-- Stats Widgets -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="stats shadow">
@@ -71,12 +52,12 @@
                 </div>
                 
                 <div class="flex gap-2">
-                    <button class="btn btn-outline gap-2">
+                    <a href="{{ route('transactions.export') }}" class="btn btn-outline gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Export
-                    </button>
+                    </a>
                     <button class="btn btn-primary gap-2" onclick="create_modal.showModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -164,26 +145,33 @@
     <div class="modal-box">
         <h3 class="font-bold text-lg mb-4">Buat Transaksi Baru</h3>
         
-        <form action="{{ route('transactions.store') }}" method="POST">
+        <form action="{{ route('transactions.store') }}" method="POST" id="create-transaction-form">
             @csrf
             <div class="form-control w-full">
                 <label class="label">
-                    <span class="label-text">Nominal</span>
+                    <span class="label-text">Nominal (Rp)</span>
                 </label>
-                <input type="number" name="amount" placeholder="Masukkan nominal" class="input input-bordered w-full @error('amount') input-error @enderror" min="1000" required />
+                <input 
+                    type="text" 
+                    id="amount-display" 
+                    placeholder="Masukkan nominal" 
+                    class="input input-bordered w-full @error('amount') input-error @enderror" 
+                    required 
+                />
+                <input type="hidden" name="amount" id="amount-value" />
                 @error('amount')
                     <label class="label">
                         <span class="label-text-alt text-error">{{ $message }}</span>
                     </label>
                 @else
                     <label class="label">
-                        <span class="label-text-alt">Minimal Rp 1.000</span>
+                        <span class="label-text-alt">Minimal Rp 1.000 - Format otomatis: 1.000.000</span>
                     </label>
                 @enderror
             </div>
             
             <div class="modal-action">
-                <button type="button" class="btn btn-ghost" onclick="create_modal.close()">Cancel</button>
+                <button type="button" class="btn btn-ghost" onclick="closeCreateModal()">Cancel</button>
                 <button type="submit" class="btn btn-primary">Create</button>
             </div>
         </form>
@@ -195,17 +183,20 @@
 
 <!-- Show Transaction Modal -->
 <dialog id="show_modal" class="modal">
-    <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Detail Transaksi</h3>
+    <div class="modal-box max-w-2xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <h3 class="font-bold text-2xl mb-6">Detail Transaksi</h3>
         
         <div id="transaction-detail" class="space-y-4">
-            <div class="flex justify-center">
+            <div class="flex justify-center py-8">
                 <span class="loading loading-spinner loading-lg"></span>
             </div>
         </div>
         
         <div class="modal-action">
-            <button type="button" class="btn" onclick="show_modal.close()">Tutup</button>
+            <button type="button" class="btn btn-primary" onclick="show_modal.close()">Tutup</button>
         </div>
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -233,6 +224,40 @@
 </dialog>
 
 <script>
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    const iconSvg = type === 'success' 
+        ? `<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+           </svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+           </svg>`;
+    
+    toast.className = `alert alert-${type} fixed bottom-4 right-4 w-auto shadow-lg z-50 animate-in slide-in-from-bottom-5`;
+    toast.innerHTML = `${iconSvg}<span>${message}</span>`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('animate-out', 'slide-out-to-bottom-5');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Show session messages as toast
+@if(session('success'))
+    document.addEventListener('DOMContentLoaded', function() {
+        showToast('{{ session('success') }}');
+    });
+@endif
+
+@if(session('error'))
+    document.addEventListener('DOMContentLoaded', function() {
+        showToast('{{ session('error') }}', 'error');
+    });
+@endif
+
 // Show transaction detail with AJAX
 function showTransaction(id) {
     const modal = document.getElementById('show_modal');
@@ -248,34 +273,65 @@ function showTransaction(id) {
         .then(data => {
             if (data.success) {
                 detailContainer.innerHTML = `
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-semibold">ID Transaksi</span></label>
-                        <input type="text" value="${data.data.transaction_id}" class="input input-bordered" readonly />
-                    </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-semibold">Nominal</span></label>
-                        <input type="text" value="${data.data.amount}" class="input input-bordered" readonly />
-                    </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-semibold">Link QRIS</span></label>
-                        <div class="flex gap-2">
-                            <input type="text" value="${data.data.url}" class="input input-bordered flex-1" readonly />
-                            <button class="btn btn-square" onclick="copyToClipboard('${data.data.url}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <div class="bg-base-200 rounded-lg p-6 space-y-5">
+                        <!-- Transaction ID -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-base-content/70 uppercase tracking-wide">ID Transaksi</label>
+                            <div class="bg-base-100 rounded-lg p-3 border border-base-300">
+                                <p class="text-sm font-mono break-all">${data.data.transaction_id}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Amount -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-base-content/70 uppercase tracking-wide">Nominal</label>
+                            <div class="bg-base-100 rounded-lg p-4 border border-base-300">
+                                <p class="text-2xl font-bold text-primary">${data.data.amount}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- QRIS Link -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-base-content/70 uppercase tracking-wide">Link QRIS</label>
+                            <div class="flex gap-2">
+                                <div class="bg-base-100 rounded-lg p-3 border border-base-300 flex-1 overflow-hidden">
+                                    <p class="text-sm break-all">${data.data.url}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Created At -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-base-content/70 uppercase tracking-wide">Dibuat Pada</label>
+                            <div class="bg-base-100 rounded-lg p-3 border border-base-300 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                            </button>
+                                <p class="text-sm">${data.data.created_at}</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-semibold">Dibuat Pada</span></label>
-                        <input type="text" value="${data.data.created_at}" class="input input-bordered" readonly />
+                    
+                    <!-- Quick Actions -->
+                    <div class="flex gap-2 mt-6">
+                        <a href="${data.data.url}" target="_blank" class="btn btn-outline btn-primary flex-1 gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Buka Link
+                        </a>
+                        <button onclick="copyToClipboard('${data.data.url}')" class="btn btn-outline flex-1 gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copy Link
+                        </button>
                     </div>
                 `;
             }
         })
         .catch(error => {
-            detailContainer.innerHTML = '<div class="alert alert-error">Gagal memuat data</div>';
+            detailContainer.innerHTML = '<div class="alert alert-error"><span>Gagal memuat data transaksi</span></div>';
         });
 }
 
@@ -286,11 +342,55 @@ function confirmDelete(id) {
     document.getElementById('delete_modal').showModal();
 }
 
-// Copy to clipboard
+// Copy to clipboard with toast notification
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        alert('Link berhasil disalin!');
+        showToast('Link berhasil disalin!');
+    }).catch(() => {
+        showToast('Gagal menyalin link', 'error');
     });
+}
+
+// Number formatting for amount input
+document.addEventListener('DOMContentLoaded', function() {
+    const amountDisplay = document.getElementById('amount-display');
+    const amountValue = document.getElementById('amount-value');
+    
+    if (amountDisplay) {
+        amountDisplay.addEventListener('input', function(e) {
+            // Remove all non-digit characters
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Update hidden input with raw number
+            amountValue.value = value;
+            
+            // Format display with thousand separators
+            if (value) {
+                e.target.value = formatNumber(value);
+            } else {
+                e.target.value = '';
+            }
+        });
+        
+        amountDisplay.addEventListener('keypress', function(e) {
+            // Only allow numbers
+            if (e.key && !/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+
+// Format number with thousand separators
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Close create modal and reset form
+function closeCreateModal() {
+    document.getElementById('create-transaction-form').reset();
+    document.getElementById('amount-value').value = '';
+    create_modal.close();
 }
 </script>
 @endsection

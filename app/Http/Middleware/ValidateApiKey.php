@@ -30,8 +30,11 @@ class ValidateApiKey
         // Remove "Bearer " prefix if exists
         $apiKey = str_replace('Bearer ', '', $apiKey);
         
-        // Validate API key in database
-        $validKey = ApiKey::where('key', $apiKey)->first();
+        // Hash the provided API key
+        $hashedKey = hash('sha256', $apiKey);
+        
+        // Validate hashed API key in database
+        $validKey = ApiKey::where('key', $hashedKey)->first();
         
         if (!$validKey) {
             return response()->json([

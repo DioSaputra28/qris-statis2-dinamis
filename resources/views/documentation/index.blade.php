@@ -29,14 +29,35 @@
             <p class="text-base-content/70">Semua request API memerlukan API Key yang dikirim melalui header Authorization.</p>
             
             <div class="mockup-code mt-4">
-                <pre data-prefix=""><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+                <pre data-prefix="$"><code>Authorization: Bearer sk_live_YOUR_API_KEY_HERE</code></pre>
             </div>
             
-            <div class="alert alert-warning mt-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 w-6 h-6" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span class="text-sm">Dapatkan API Key Anda di halaman <a href="{{ route('api-keys.index') }}" class="link">API Keys</a></span>
+            <div class="space-y-3 mt-4">
+                <div class="alert alert-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="text-sm">
+                        <p class="font-semibold">Format API Key</p>
+                        <p>API Key dimulai dengan <code>sk_live_</code> diikuti 32 karakter random.</p>
+                        <p class="mt-1">Contoh: <code class="text-xs">sk_live_{32_random_characters}</code></p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 w-6 h-6" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div class="text-sm">
+                        <p class="font-semibold">Penting!</p>
+                        <ul class="list-disc list-inside mt-1 space-y-1">
+                            <li>API Key hanya ditampilkan <strong>sekali</strong> saat dibuat</li>
+                            <li>Simpan API Key di tempat yang aman (password manager)</li>
+                            <li>Jangan share API Key ke orang lain</li>
+                            <li>Jika hilang, buat API Key baru di halaman <a href="{{ route('api-keys.index') }}" class="link font-semibold">API Keys</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

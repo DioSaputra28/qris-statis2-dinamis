@@ -97,34 +97,28 @@
 
         <!-- User Profile Footer -->
         <div class="border-t border-base-300 p-4">
-            <div class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-base-200 transition-colors">
+            <div class="flex items-center gap-3 px-2 py-2 mb-3">
                 <div class="avatar online">
                     <div class="w-10 h-10 rounded-full">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" alt="User Avatar" />
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" alt="User Avatar" />
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold truncate">Admin User</p>
-                    <p class="text-xs text-base-content/60 truncate">admin@example.com</p>
-                </div>
-                <div class="dropdown dropdown-top dropdown-end">
-                    <button tabindex="0" class="btn btn-ghost btn-sm btn-circle">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                        </svg>
-                    </button>
-                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-52 mb-2 border border-base-300">
-                        <li>
-                            <a href="#" class="text-error">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
+                    <p class="text-sm font-semibold truncate">{{ auth()->user()->name ?? 'Admin User' }}</p>
+                    <p class="text-xs text-base-content/60 truncate">{{ auth()->user()->email ?? 'admin@example.com' }}</p>
                 </div>
             </div>
+            
+            <!-- Logout Button -->
+            <form action="{{ route('logout') }}" method="POST" class="w-full">
+                @csrf
+                <button type="submit" class="btn btn-error btn-block btn-sm gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </button>
+            </form>
         </div>
     </aside>
 </div>

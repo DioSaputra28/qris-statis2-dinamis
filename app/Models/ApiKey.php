@@ -48,17 +48,13 @@ class ApiKey extends Model
     }
 
     /**
-     * Get masked key for display (e.g., sk_live_abc123...xyz789).
+     * Get masked key for display.
+     * Since key is hashed, we show a generic masked format.
      */
     public function getMaskedKeyAttribute(): string
     {
-        if (strlen($this->key) <= 20) {
-            return $this->key;
-        }
-
-        $start = substr($this->key, 0, 15);
-        $end = substr($this->key, -6);
-
-        return $start . '...' . $end;
+        // Show first 8 chars of hash for identification
+        $prefix = substr($this->key, 0, 8);
+        return $prefix . '••••••••••••••••••••••••';
     }
 }

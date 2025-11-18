@@ -41,20 +41,23 @@ class ApiKeyController extends Controller
 
         $user = Auth::user();
         
-        // Generate random API key (20 characters)
-        $key = 'sk_live_' . Str::random(20);
+        // Generate random API key (32 characters for better security)
+        $plainKey = 'sk_live_' . Str::random(32);
+        
+        // Hash the API key using SHA-256
+        $hashedKey = hash('sha256', $plainKey);
 
-        // Create API key
+        // Create API key with hashed value
         ApiKey::create([
             'user_id' => $user->user_id,
             'name' => $request->name,
-            'key' => $key,
+            'key' => $hashedKey, // Store hashed key
             'total_call' => 0,
         ]);
 
         return redirect()->route('api-keys.index')
             ->with('success', 'API Key berhasil dibuat!')
-            ->with('new_key', $key); // Show key once for user to copy
+            ->with('new_key', $plainKey); // Show plain key once for user to copy
     }
 
     /**

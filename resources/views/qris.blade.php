@@ -7,9 +7,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-base-200">
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="card w-full max-w-md bg-base-100 shadow-xl">
-            <div class="card-body items-center text-center">
+    <div class="min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6">
+        <div class="card w-full max-w-sm sm:max-w-md bg-base-100 shadow-xl">
+            <div class="card-body items-center text-center p-4 sm:p-6 md:p-8">
                 <!-- Logo -->
                 <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary-content" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -17,29 +17,37 @@
                     </svg>
                 </div>
                 
-                <h2 class="card-title text-2xl">Pembayaran QRIS</h2>
+                <h2 class="card-title text-xl sm:text-2xl">Pembayaran QRIS</h2>
                 
                 @if($qris->name)
-                    <p class="text-base-content/70">{{ $qris->name }}</p>
+                    <p class="text-sm sm:text-base text-base-content/70">{{ $qris->name }}</p>
                 @endif
                 
                 <!-- Amount -->
-                <div class="my-6">
-                    <p class="text-base-content/60 text-sm mb-2">Total Pembayaran</p>
-                    <p class="text-4xl font-bold text-primary">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</p>
+                <div class="my-4 sm:my-6">
+                    <p class="text-base-content/60 text-xs sm:text-sm mb-2">Total Pembayaran</p>
+                    <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</p>
                 </div>
                 
                 <!-- QR Code -->
-                <div class="bg-white p-6 rounded-2xl shadow-inner mb-4">
-                    <img src="data:image/png;base64,{{ $qrCodeBase64 }}" alt="QRIS Code" class="w-64 h-64 mx-auto" />
+                <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-inner mb-4">
+                    <img id="qrCodeImage" src="data:image/png;base64,{{ $qrCodeBase64 }}" alt="QRIS Code" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto" />
                 </div>
                 
+                <!-- Download Button -->
+                <button onclick="downloadQRCode()" class="btn btn-primary btn-block sm:btn-wide gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download QR Code
+                </button>
+                
                 <!-- Instructions -->
-                <div class="alert alert-info">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <div class="alert alert-info text-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5 sm:w-6 sm:h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <div class="text-left text-sm">
+                    <div class="text-xs sm:text-sm">
                         <p class="font-semibold mb-1">Cara Pembayaran:</p>
                         <ol class="list-decimal list-inside space-y-1">
                             <li>Buka aplikasi e-wallet atau mobile banking Anda</li>
@@ -62,10 +70,22 @@
     </div>
     
     <!-- Footer -->
-    <div class="text-center pb-8">
-        <p class="text-sm text-base-content/60">
+    <div class="text-center pb-6 sm:pb-8 px-4">
+        <p class="text-xs sm:text-sm text-base-content/60">
             Powered by {{ config('app.name') }}
         </p>
     </div>
+    
+    <script>
+        function downloadQRCode() {
+            const img = document.getElementById('qrCodeImage');
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = 'QRIS-{{ $transaction->transaction_id }}.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
 </body>
 </html>
