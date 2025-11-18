@@ -4,100 +4,164 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Transactions -->
         <div class="stats shadow">
             <div class="stat">
                 <div class="stat-figure text-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                 </div>
                 <div class="stat-title">Total Transaksi</div>
-                <div class="stat-value text-primary">1,234</div>
-                <div class="stat-desc">↗︎ 12% dari bulan lalu</div>
+                <div class="stat-value text-primary">{{ number_format($stats['total_transactions_all']) }}</div>
+                <div class="stat-desc">
+                    @if($stats['transactions_change'] > 0)
+                        ↗︎ {{ $stats['transactions_change'] }}% dari kemarin
+                    @elseif($stats['transactions_change'] < 0)
+                        ↘︎ {{ abs($stats['transactions_change']) }}% dari kemarin
+                    @else
+                        Sama dengan kemarin
+                    @endif
+                </div>
             </div>
         </div>
         
+        <!-- Total Revenue -->
         <div class="stats shadow">
             <div class="stat">
                 <div class="stat-figure text-secondary">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <div class="stat-title">Pendapatan</div>
-                <div class="stat-value text-secondary">Rp 45,6M</div>
-                <div class="stat-desc">↗︎ 8% dari bulan lalu</div>
+                <div class="stat-title">Total Pendapatan</div>
+                <div class="stat-value text-secondary text-lg lg:text-3xl">Rp {{ number_format($stats['total_revenue_all'], 0, ',', '.') }}</div>
+                <div class="stat-desc">Bulan ini: Rp {{ number_format($stats['total_revenue_month'], 0, ',', '.') }}</div>
             </div>
         </div>
         
+        <!-- Total Clicks -->
         <div class="stats shadow">
             <div class="stat">
                 <div class="stat-figure text-accent">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 </div>
-                <div class="stat-title">QRIS Aktif</div>
-                <div class="stat-value text-accent">89</div>
-                <div class="stat-desc">↗︎ 5 baru hari ini</div>
+                <div class="stat-title">Total Click QRIS</div>
+                <div class="stat-value text-accent">{{ number_format($stats['total_clicks']) }}</div>
+                <div class="stat-desc">Engagement metric</div>
             </div>
         </div>
         
+        <!-- Total API Calls -->
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-figure text-success">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                <div class="stat-figure text-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <div class="stat-title">Sukses Rate</div>
-                <div class="stat-value text-success">98.5%</div>
-                <div class="stat-desc">↗︎ 0.5% dari bulan lalu</div>
+                <div class="stat-title">Total API Calls</div>
+                <div class="stat-value text-info">{{ number_format($stats['total_api_calls']) }}</div>
+                <div class="stat-desc">API usage monitoring</div>
             </div>
         </div>
     </div>
     
-    <!-- Recent Transactions -->
-    <div class="card bg-base-100 shadow">
-        <div class="card-body">
-            <h2 class="card-title">Transaksi Terbaru</h2>
-            <div class="overflow-x-auto">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tanggal</th>
-                            <th>Nominal</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>TRX001</td>
-                            <td>2024-11-17 10:30</td>
-                            <td>Rp 150.000</td>
-                            <td><span class="badge badge-success">Berhasil</span></td>
-                            <td><button class="btn btn-ghost btn-xs">Detail</button></td>
-                        </tr>
-                        <tr>
-                            <td>TRX002</td>
-                            <td>2024-11-17 10:25</td>
-                            <td>Rp 250.000</td>
-                            <td><span class="badge badge-success">Berhasil</span></td>
-                            <td><button class="btn btn-ghost btn-xs">Detail</button></td>
-                        </tr>
-                        <tr>
-                            <td>TRX003</td>
-                            <td>2024-11-17 10:20</td>
-                            <td>Rp 75.000</td>
-                            <td><span class="badge badge-warning">Pending</span></td>
-                            <td><button class="btn btn-ghost btn-xs">Detail</button></td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- Quick Actions & Status -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Quick Actions -->
+        <div class="lg:col-span-2">
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Quick Actions</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <a href="{{ route('transactions.index') }}" class="btn btn-primary btn-lg gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Buat Transaksi Baru
+                        </a>
+                        
+                        @if($apiKeysCount > 0)
+                            <a href="{{ route('api-keys.index') }}" class="btn btn-outline btn-lg gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                                Lihat API Keys ({{ $apiKeysCount }})
+                            </a>
+                        @else
+                            <a href="{{ route('api-keys.index') }}" class="btn btn-secondary btn-lg gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Generate API Key
+                            </a>
+                        @endif
+                        
+                        <a href="{{ route('settings.index') }}" class="btn btn-outline btn-lg gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Pengaturan QRIS
+                        </a>
+                        
+                        <a href="{{ route('documentation.index') }}" class="btn btn-outline btn-lg gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Dokumentasi API
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Cards -->
+        <div class="space-y-4">
+            <!-- QRIS Status -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-base">Status QRIS</h3>
+                    @if($qrisStatus['uploaded'] && $qrisStatus['has_payload'])
+                        <div class="flex items-center gap-2">
+                            <div class="badge badge-success gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Active
+                            </div>
+                        </div>
+                        @if($qrisStatus['name'])
+                            <p class="text-sm text-base-content/70">{{ $qrisStatus['name'] }}</p>
+                        @endif
+                    @else
+                        <div class="alert alert-warning py-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span class="text-xs">QRIS belum diupload</span>
+                        </div>
+                        <a href="{{ route('settings.index') }}" class="btn btn-sm btn-primary">Upload QRIS</a>
+                    @endif
+                </div>
+            </div>
+            
+            <!-- API Keys Info -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-base">API Keys</h3>
+                    <div class="stat-value text-2xl">{{ $apiKeysCount }}</div>
+                    <p class="text-sm text-base-content/70">Active keys</p>
+                    @if($apiKeysCount == 0)
+                        <a href="{{ route('api-keys.index') }}" class="btn btn-sm btn-primary mt-2">Create API Key</a>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

@@ -13,6 +13,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $primaryKey = 'user_id';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -57,5 +59,21 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the QRIS records for the user.
+     */
+    public function qris()
+    {
+        return $this->hasMany(Qris::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the API keys for the user.
+     */
+    public function apiKeys()
+    {
+        return $this->hasMany(ApiKey::class, 'user_id', 'user_id');
     }
 }

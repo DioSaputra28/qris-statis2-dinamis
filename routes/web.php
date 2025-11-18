@@ -1,31 +1,46 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\QrisController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('auth.login');
-})->name('login');
+// Public routes (accessible by anyone)
+Route::get('/qris/{uniqueId}', [TransactionController::class, 'showQris'])->name('qris.public');
 
-Route::post('/login', function () {
-    return redirect()->route('admin.dashboard');
-})->name('login.post');
+// Guest routes (accessible without login)
+Route::middleware('guest')->group(function () {
+    Route::get('/', [AuthController::class, 'index'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+});
 
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
-
-Route::get('/transactions', function () {
-    return view('transactions.index');
-})->name('transactions.index');
-
-Route::get('/api-keys', function () {
-    return view('apiKeys.index');
-})->name('api-keys.index');
-
-Route::get('/settings', function () {
-    return view('settings.index');
-})->name('settings.index');
-
-Route::get('/documentation', function () {
-    return view('documentation.index');
-})->name('documentation.index');
+// Authenticated routes (require login)
+Route::middleware('auth')->group(function () {
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Dashboard
+    Route::get('/admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // Transactions
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
+    Route::delete('/transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+    
+    // API Keys
+    Route::get('/api-keys', [App\Http\Controllers\ApiKeyController::class, 'index'])->name('api-keys.index');
+    Route::post('/api-keys', [App\Http\Controllers\ApiKeyController::class, 'store'])->name('api-keys.store');
+    Route::delete('/api-keys/{id}', [App\Http\Controllers\ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
+    
+    // QRIS Settings
+    Route::get('/settings', [QrisController::class, 'index'])->name('settings.index');
+    Route::post('/qris', [QrisController::class, 'store'])->name('qris.store');
+    Route::put('/qris/{id}', [QrisController::class, 'update'])->name('qris.update');
+    Route::delete('/qris/{id}', [QrisController::class, 'destroy'])->name('qris.destroy');
+    
+    // Documentation
+    Route::get('/documentation', function () {
+        return view('documentation.index');
+    })->name('documentation.index');
+});
