@@ -86,7 +86,68 @@ class DashboardController extends Controller
         // API Keys Count
         $apiKeysCount = ApiKey::where('user_id', $user->user_id)->count();
         
-        return view('admin.dashboard', compact('stats', 'qrisStatus', 'apiKeysCount'));
+        // Chart Data
+        $chartData = [
+            'daily' => [
+                'labels' => [],
+                'data' => []
+            ],
+            'monthly' => [
+                'labels' => [],
+                'data' => []
+            ]
+        ];
+
+        if ($qris) {
+            // Daily Data (Last 30 Days)
+            $dailyTransactions = Transaction::where('qris_id', $qris->qris_id)
+                ->where('created_at', '>=', now()->subDays(30))
+                ->select(
+                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('SUM(amount) as total_amount')
+                )
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+
+            $dates = [];
+            $amounts = [];
+            
+            // Fill missing dates with 0
+            for ($i = 29; $i >= 0; $i--) {
+                $date = now()->subDays($i)->format('Y-m-d');
+                $dates[] = now()->subDays($i)->format('d M');
+                
+                $transaction = $dailyTransactions->firstWhere('date', $date);
+                $amounts[] = $transaction ? $transaction->total_amount : 0;
+            }
+            
+            $chartData['daily']['labels'] = $dates;
+            $chartData['daily']['data'] = $amounts;
+
+            // Monthly Data (This Year)
+            $monthlyTransactions = Transaction::where('qris_id', $qris->qris_id)
+                ->whereYear('created_at', now()->year)
+                ->select(
+                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('SUM(amount) as total_amount')
+                )
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get();
+
+            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            $monthlyAmounts = array_fill(0, 12, 0);
+
+            foreach ($monthlyTransactions as $transaction) {
+                $monthlyAmounts[$transaction->month - 1] = $transaction->total_amount;
+            }
+
+            $chartData['monthly']['labels'] = $months;
+            $chartData['monthly']['data'] = $monthlyAmounts;
+        }
+        
+        return view('admin.dashboard', compact('stats', 'qrisStatus', 'apiKeysCount', 'chartData'));
     }
     
     private function calculatePercentageChange($old, $new)

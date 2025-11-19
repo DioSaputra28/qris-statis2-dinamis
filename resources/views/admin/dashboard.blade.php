@@ -71,6 +71,22 @@
             </div>
         </div>
     </div>
+
+    <!-- Transaction Chart -->
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">Grafik Transaksi</h2>
+                <div class="join">
+                    <button class="join-item btn btn-sm btn-active" id="btn-daily">Harian</button>
+                    <button class="join-item btn btn-sm" id="btn-monthly">Bulanan</button>
+                </div>
+            </div>
+            <div class="h-80 w-full">
+                <canvas id="transactionChart"></canvas>
+            </div>
+        </div>
+    </div>
     
     <!-- Quick Actions & Status -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -167,3 +183,101 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('transactionChart').getContext('2d');
+        
+        // Data from controller
+        const chartData = {!! json_encode($chartData ?? ['daily' => ['labels' => [], 'data' => []], 'monthly' => ['labels' => [], 'data' => []]]) !!};
+        
+        let currentChart = null;
+        
+        function initChart(type) {
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const data = chartData[type];
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Total Transaksi (Rp)',
+                        data: data.data,
+                        borderColor: '#3b82f6', // Blue-500
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)', // Blue-500 with opacity
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#3b82f6',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 3 }).format(value);
+                                }
+                            },
+                            grid: {
+                                color: 'hsla(var(--bc) / 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Update buttons
+            document.getElementById('btn-daily').classList.toggle('btn-active', type === 'daily');
+            document.getElementById('btn-monthly').classList.toggle('btn-active', type === 'monthly');
+        }
+        
+        // Event Listeners
+        document.getElementById('btn-daily').addEventListener('click', function() {
+            initChart('daily');
+        });
+        
+        document.getElementById('btn-monthly').addEventListener('click', function() {
+            initChart('monthly');
+        });
+        
+        // Initialize with daily data
+        initChart('daily');
+    });
+</script>
+@endpush

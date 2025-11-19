@@ -25,5 +25,6 @@
         <!-- Sidebar -->
         @include('layouts.sidebar')
     </div>
+    @stack('scripts')
 </body>
 </html>
