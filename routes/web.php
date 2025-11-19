@@ -18,6 +18,10 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Profile
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile.index');
+    Route::put('/profile/password', [AuthController::class, 'updatePassword'])->name('profile.password.update');
     
     // Dashboard
     Route::get('/admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('admin.dashboard');
