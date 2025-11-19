@@ -22,6 +22,10 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('admin.dashboard');
     
+    // Storage Link (for shared hosting without terminal access)
+    Route::get('/storage-link/create', [App\Http\Controllers\StorageLinkController::class, 'createLink'])->name('storage.link.create');
+    Route::get('/storage-link/check', [App\Http\Controllers\StorageLinkController::class, 'checkLink'])->name('storage.link.check');
+    
     // Transactions
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
