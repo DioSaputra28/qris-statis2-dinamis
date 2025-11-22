@@ -96,44 +96,46 @@
         </div>
 
         <!-- User Profile Footer -->
-        <div class="border-t border-base-300 bg-base-100">
+        <div class="border-t border-base-300 bg-base-100 relative">
             <!-- User Info Display -->
-            <div class="px-4 py-3 hover:bg-base-200 transition-colors cursor-pointer" onclick="toggleUserMenu()">
+            <button type="button" class="w-full px-4 py-3 hover:bg-base-200 transition-colors" onclick="toggleUserMenu()">
                 <div class="flex items-center gap-3">
                     <div class="avatar">
-                        <div class="w-10 h-10 rounded-full">
+                        <div class="w-10 h-10 rounded-full ring-2 ring-primary ring-offset-2 ring-offset-base-100">
                             <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" alt="User Avatar" />
                         </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold truncate">{{ auth()->user()->name ?? 'Admin User' }}</p>
+                    <div class="flex-1 min-w-0 text-left">
+                        <p class="text-sm font-semibold truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
                         <p class="text-xs text-base-content/60 truncate">{{ auth()->user()->email ?? 'admin@example.com' }}</p>
                     </div>
-                    <svg id="user-menu-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/60 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg id="user-menu-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/60 transition-transform duration-200 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                     </svg>
                 </div>
-            </div>
+            </button>
 
-            <!-- Dropdown Menu -->
-            <div id="user-dropdown-menu" class="hidden border-t border-base-300">
+            <!-- Popup Menu -->
+            <div id="user-dropdown-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 mx-4 bg-base-100 rounded-lg shadow-xl border border-base-300 overflow-hidden">
                 <div class="py-2">
-                    <a href="{{ route('profile.index') }}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-base-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <!-- Profile Option -->
+                    <button type="button" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-base-200 transition-colors text-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <span class="text-sm">Profile</span>
-                    </a>
+                        <span class="text-sm font-medium">Profile</span>
+                    </button>
 
                     <div class="border-t border-base-300 my-1"></div>
 
+                    <!-- Logout Option -->
                     <form action="{{ route('logout') }}" method="POST" id="logout-form">
                         @csrf
-                        <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-base-200 transition-colors text-left">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-error/10 transition-colors text-left group">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
-                            <span class="text-sm">Log out</span>
+                            <span class="text-sm font-medium text-error">Log out</span>
                         </button>
                     </form>
                 </div>
@@ -147,9 +149,13 @@
 
             if (menu.classList.contains('hidden')) {
                 menu.classList.remove('hidden');
+                menu.style.animation = 'slideUp 0.2s ease-out';
                 icon.style.transform = 'rotate(180deg)';
             } else {
-                menu.classList.add('hidden');
+                menu.style.animation = 'slideDown 0.2s ease-out';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                }, 150);
                 icon.style.transform = 'rotate(0deg)';
             }
         }
@@ -161,10 +167,39 @@
             const icon = document.getElementById('user-menu-icon');
 
             if (!userSection && menu && !menu.classList.contains('hidden')) {
-                menu.classList.add('hidden');
+                menu.style.animation = 'slideDown 0.2s ease-out';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                }, 150);
                 icon.style.transform = 'rotate(0deg)';
             }
         });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes slideDown {
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
         </script>
     </aside>
 </div>
