@@ -119,12 +119,12 @@
             <div id="user-dropdown-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 mx-4 bg-base-100 rounded-lg shadow-xl border border-base-300 overflow-hidden">
                 <div class="py-2">
                     <!-- Profile Option -->
-                    <button type="button" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-base-200 transition-colors text-left">
+                    <a href="{{ route('profile.index') }}" type="button" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-base-200 transition-colors text-left">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span class="text-sm font-medium">Profile</span>
-                    </button>
+                    </a>
 
                     <div class="border-t border-base-300 my-1"></div>
 
